@@ -45,6 +45,12 @@ model training.
 - https://www.youtube.com/watch?v=HWTNCTaKZ_o
 - https://www.youtube.com/watch?v=YwSZUdU3iRY
 
+### Cloud Composer and GKE Batch/Vertex Operators
+- https://cloud.google.com/composer/docs/composer-2/use-gke-operator
+- https://airflow.apache.org/docs/apache-airflow-providers-google/stable/operators/cloud/kubernetes_engine.html
+- https://airflow.apache.org/docs/apache-airflow-providers-google/stable/operators/cloud/vertex_ai.html
+- https://cloud.google.com/blog/products/data-analytics/announcing-apache-airflow-operators-for-google-generative-ai
+
 ### LLMs
 - https://writings.stephenwolfram.com/2023/02/what-is-chatgpt-doing-and-why-does-it-work/
 - https://ai.google.dev/gemma/docs/lora_tuning
