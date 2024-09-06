@@ -34,3 +34,20 @@ before it's used for fine-tuning large language models (LLMs).
 The preprocessing steps may include tokenization, data normalization, 
 and other techniques to transform raw data into a format suitable for 
 model training.
+
+## Useful Resources
+### GKE Batch and Kueue
+- https://github.com/GoogleCloudPlatform/ai-on-gke/tree/main/best-practices/gke-batch-refarch
+- https://cloud.google.com/blog/products/containers-kubernetes/serving-gemma-on-google-kubernetes-engine-deep-dive
+- https://cloud.google.com/blog/products/compute/the-worlds-largest-distributed-llm-training-job-on-tpu-v5e
+- https://kueue.sigs.k8s.io/docs/overview/
+- https://kubernetes.io/docs/concepts/workloads/controllers/job/
+- https://www.youtube.com/watch?v=HWTNCTaKZ_o
+- https://www.youtube.com/watch?v=YwSZUdU3iRY
+
+### LLMs
+- https://writings.stephenwolfram.com/2023/02/what-is-chatgpt-doing-and-why-does-it-work/
+- https://ai.google.dev/gemma/docs/lora_tuning
+- https://www.databricks.com/blog/efficient-fine-tuning-lora-guide-llms
+- https://www.youtube.com/watch?v=zjkBMFhNj_g
+- https://www.youtube.com/watch?v=l8pRSuU81PU
