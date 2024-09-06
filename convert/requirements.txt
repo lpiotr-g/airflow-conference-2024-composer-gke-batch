@@ -1,0 +1,5 @@
+absl-py==2.1.0
+keras-nlp==0.14.2
+torch==2.4.0
+sentencepiece==0.2.0
+transformers==4.44.2

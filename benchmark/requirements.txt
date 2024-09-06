@@ -1,0 +1,9 @@
+accelerate==0.34.2
+datasets==2.21.0
+keras-nlp==0.14.2
+keras>3
+numpy==1.26.4
+sentencepiece
+torch==2.2.2
+transformers==4.44.2
+tqdm==4.66.4
