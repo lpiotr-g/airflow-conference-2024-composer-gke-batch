@@ -1,0 +1,25 @@
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ClusterQueue
+metadata:
+  name: "cluster-queue"
+spec:
+  namespaceSelector: {} # match all.
+  resourceGroups:
+    - coveredResources: ["cpu", "memory", "pods"]
+      flavors:
+        - name: "tiny-cpu"
+          resources:
+            - name: "cpu"
+              nominalQuota: 3
+            - name: "memory"
+              nominalQuota: 9Gi
+            - name: "pods"
+              nominalQuota: 30
+        - name: "high-mem"
+          resources:
+            - name: "cpu"
+              nominalQuota: 29
+            - name: "memory"
+              nominalQuota: 124Gi
+            - name: "pods"
+              nominalQuota: 4
