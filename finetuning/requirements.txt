@@ -1,0 +1,2 @@
+keras-nlp==0.14.2
+keras>3
