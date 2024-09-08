@@ -102,17 +102,6 @@ class JobConfig:
     local_queue: str
 
 
-def load_cluster_data(cluster_name: str, workload_idp: str):
-    """
-    Loads cluster configuration from a JSON file.
-    """
-    with open("resources/cluster.json") as cluster_fp:
-        cluster_template = json.load(cluster_fp)
-    cluster_template["name"] = cluster_name
-    cluster_template["workload_identity_config"]["workload_pool"] = workload_idp
-    return cluster_template
-
-
 def build_resource_requirements(
     cpu_request: str,
     memory_request: str,
@@ -160,7 +149,7 @@ def build_kueue_preprocess_job(
         container_resources=build_resource_requirements("200m", "200Mi"),
         env_vars={
             "INPUT_FILE": input_dataset,
-            "OUTPUT_FILE": output_file.format(job_id),
+            "OUTPUT_FILE": output_file.format(id_=job_id),
             "NUM_ITEMS": str(items),
         },
         service_account_name="default",
@@ -198,8 +187,8 @@ def build_kueue_finetuning_job(
             "7000m", "20Gi", memory_limit="25Gi"
         ),
         env_vars={
-            "INPUT_FILE": input_ft_data_path.format(job_id),
-            "OUTPUT_DIRECTORY": output_model_path.format(job_id),
+            "INPUT_FILE": input_ft_data_path.format(id_=job_id),
+            "OUTPUT_DIRECTORY": output_model_path.format(id_=job_id),
             "STEPS": str(steps),
             "KAGGLE_USERNAME": KAGGLE_USERNAME,
             "KAGGLE_KEY": KAGGLE_KEY,
@@ -217,7 +206,7 @@ def build_kueue_convert_job(project_config: ProjectConfig, job_id: int):
     Builds a Kueue job for converting models from Keras NLP to VLLM.
     """
     return GKEStartKueueJobOperator(
-        task_id="kueue_job_convert",
+        task_id=f"kueue_job_convert{job_id}",
         project_id=project_config.project_id,
         location=project_config.cluster_region,
         cluster_name=project_config.cluster_name,
@@ -229,11 +218,11 @@ def build_kueue_convert_job(project_config: ProjectConfig, job_id: int):
         suspend=True,
         container_resources=build_resource_requirements("6000m", "50Gi"),
         env_vars={
-            "MODEL_WEIGHT_FILE": f"{fine_tuned_model_path_template.format(job_id)}/model.weights.h5",
-            "MODEL_VOCAB_FILE": f"{fine_tuned_model_path_template.format(job_id)}/vocabulary.spm",
-            "OUTPUT_DIR": converted_model_path_template.format(job_id),
+            "MODEL_WEIGHT_FILE": f"{fine_tuned_model_path_template.format(id_=job_id)}/model.weights.h5",
+            "MODEL_VOCAB_FILE": f"{fine_tuned_model_path_template.format(id_=job_id)}/vocabulary.spm",
+            "OUTPUT_DIR": converted_model_path_template.format(id_=job_id),
             "KAGGLE_USERNAME": KAGGLE_USERNAME,
-            "KAGGLE_KEY": KAGGLE_USERNAME,
+            "KAGGLE_KEY": KAGGLE_KEY,
         },
         service_account_name="default",
         volume_mounts=GCS_VOLUME_MOUNT,
@@ -252,7 +241,6 @@ with models.DAG(
     # DAG's CONSTANTS
     PROJECT_CONFIG = ProjectConfig(GCP_PROJECT, GCP_REGION, GCP_CLUSTER_NAME)
     WORKLOAD_IDENTITY_POOL = GCP_PROJECT + ".svc.id.goog"
-    # CLUSTER = load_cluster_data(GCP_CLUSTER_NAME, WORKLOAD_IDENTITY_POOL)
     CLUSTER = {
         "name": GCP_CLUSTER_NAME,
         "workload_identity_config": {"workload_pool": WORKLOAD_IDENTITY_POOL},
@@ -312,11 +300,11 @@ with models.DAG(
     VLLM_ARGS = [
         "--host=0.0.0.0",
         "--port=7080",
-        f"--tensor-parallel-size=1",
+        "--tensor-parallel-size=1",
         "--swap-space=16",
         "--gpu-memory-utilization=0.95",
-        f"--max-model-len=1",
-        f"--dtype=bfloat16",
+        "--max-model-len=1",
+        "--dtype=bfloat16",
         "--disable-log-stats",
     ]
     FT_TASK1_ITEMS = 1
@@ -328,22 +316,6 @@ with models.DAG(
     FT_TASK2_BIS_ITEMS = 10
     FT_TASKS_BIS_ITEMS = [FT_TASK1_BIS_ITEMS, FT_TASK2_BIS_ITEMS]
     BENCHMARK_STEPS = 5
-
-    # # Kueue config
-    # with open("resources/tiny_flavor.json") as tiny_flavor_fp:
-    #     tiny_flavor_conf = tiny_flavor_fp.read().strip()
-    #
-    # with open("resources/high_mem_flavor.yaml") as highmem_flavor_fp:
-    #     highmem_flavor_conf = highmem_flavor_fp.read().strip()
-    #
-    # with open("resources/local_queue.yaml") as local_queue_fp:
-    #     local_conf = local_queue_fp.read().strip()
-    #
-    # with open("resources/local_queue_bis.yaml") as local_queue_bis_fp:
-    #     local_conf_bis = local_queue_bis_fp.read().strip()
-    #
-    # with open("resources/cluster_queue.yaml") as cluster_queue_fp:
-    #     cluster_conf = cluster_queue_fp.read().strip()
 
     tiny_flavor_conf = """
     apiVersion: kueue.x-k8s.io/v1beta1
@@ -598,34 +570,6 @@ with models.DAG(
         },
     )
 
-    kueue_job_fine_tune_bis2 = GKEStartKueueJobOperator(
-        task_id="kueue_job_finetune_bis2",
-        project_id=PROJECT_CONFIG.project_id,
-        location=PROJECT_CONFIG.cluster_region,
-        cluster_name=PROJECT_CONFIG.cluster_name,
-        queue_name="local-queue-bis",
-        namespace="default",
-        parallelism=1,
-        image=FINETUNING_APP_LATEST,
-        name="llm-data-finetuning-bis",
-        suspend=True,
-        container_resources=build_resource_requirements(
-            "7000m", "20Gi", memory_limit="25Gi"
-        ),
-        env_vars={
-            "INPUT_FILE": "/data/fine-tuned_bis2.jsonl",
-            "OUTPUT_DIRECTORY": "/data/gemma-finetuned_bis2",
-            "STEPS": "2",
-            "KAGGLE_USERNAME": "[PLACEHOLDER]",
-            "KAGGLE_KEY": "[PLACEHOLDER]",
-        },
-        service_account_name="default",
-        volume_mounts=GCS_VOLUME_MOUNT,
-        volumes=GCS_VOLUME,
-        annotations=GCS_ANNOTATION,
-        wait_until_job_complete=True,
-    )
-
     # The below task doesn't really generate any reports
     # It's just a placeholder showcasing how these types of workflows usually end
     kueue_job_gen_report_bis = GKEStartKueueJobOperator(
@@ -692,7 +636,7 @@ with models.DAG(
                 PROJECT_CONFIG,
                 job_steps,
                 job_id + 1,
-                task_id="kueue_job_preprocess_bis",
+                task_id="kueue_job_finetune_bis",
                 local_queue="local-queue-bis",
                 input_ft_data_path=fine_tuned_path_bis_template,
                 output_model_path=fine_tuned_model_path_bis_template,
