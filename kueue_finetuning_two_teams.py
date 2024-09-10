@@ -30,14 +30,14 @@ from airflow.providers.google.cloud.operators.vertex_ai.endpoint_service import 
 
 
 # GLOBAL CONSTANTS
-# Credentials required to run the DAG
-KAGGLE_USERNAME = ""
-KAGGLE_KEY = ""
-
-# GCP project config
-GCP_PROJECT = ""
-GCP_REGION = ""
-GCP_CLUSTER_NAME = ""
+# Credentials and Project specific constants necessary
+# for the workflow to run. These are required to be
+# filled in for the DAG to be accepted.
+KAGGLE_USERNAME = "[PLACEHOLDER]"
+KAGGLE_KEY = "[PLACEHOLDER]"
+GCP_PROJECT = "[PLACEHOLDER]"
+GCP_REGION = "[PLACEHOLDER]"
+GCP_CLUSTER_NAME = "[PLACEHOLDER]"
 
 # GCS related constants
 GCS_BUCKET_NAME = "example-model-trainings"
