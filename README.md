@@ -51,6 +51,10 @@ model training.
 - https://airflow.apache.org/docs/apache-airflow-providers-google/stable/operators/cloud/vertex_ai.html
 - https://cloud.google.com/blog/products/data-analytics/announcing-apache-airflow-operators-for-google-generative-ai
 
+### GCP
+- https://cloud.google.com/storage/docs/gcs-fuse
+- https://github.com/GoogleCloudPlatform/gcsfuse
+
 ### LLMs
 - https://writings.stephenwolfram.com/2023/02/what-is-chatgpt-doing-and-why-does-it-work/
 - https://ai.google.dev/gemma/docs/lora_tuning
